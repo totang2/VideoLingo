@@ -1,17 +1,6 @@
 # delpoy but run failed
 
 1
-1. yt-dlp 下载失败， 【修复】添加cookie 设置
-ERROR: [youtube] gl1r1XV0SLw: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-
-
-cursor：
-https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp
-
-yt-dlp --cookies-from-browser chrome --cookies cookies.txt. yt-dlp will extract the browser cookies and save them to the filepath specified after --cookies. The resulting text file can then be used with the --cookies option. Note though that this method exports your browser's cookies for ALL sites (even if you passed a URL to yt-dlp), so take care in not letting this text file fall into the wrong hands.
-
-2. 下载的文件没有字幕
-直接从音频转录
 
 3. AI setting
 就用deepseek 试试
@@ -20,29 +9,6 @@ yt-dlp --cookies-from-browser chrome --cookies cookies.txt. yt-dlp will extract 
 
 成功了，耗时较长，output 目录下带sub 的mp4 文件
 
-4. 如何去水印
-
-
-
-5. 如何替换 人物  
-
-https://modelscope.cn/studios/Damo_XR_Lab/motionshop/summary
-https://modelscope.cn/studios/Damo_XR_Lab/Motionshop2
-
-有时间限制， 让我截取20s 视频实施
-ffmpeg -i output/output_sub.mp4 -t 20 -c copy output/output_sub_20s.mp4
-
-替换不对，应该先替换人物再驱动
-
-暂时没有找到开源方案， 可以使用
-
-https://github.com/ai-aigc-studio/Viggle-AI-WebUI?tab=readme-ov-file
-
-Viggle  的效果还可以
-
-后面看看数字人技术 HeyGem livePortrait
-
-https://www.youtube.com/watch?v=4CqcVmx713w
 
 # 热门项目排行榜
 https://www.aibase.com/zh/repos/ranking/project
@@ -50,6 +16,10 @@ https://www.aibase.com/zh/repos/ranking/project
 自媒体
 
 https://github.com/ddean2009/MoneyPrinterPlus
+
+https://github.com/FujiwaraChoki/MoneyPrinterV2
+
+
 
 https://www.youtube.com/channel/UCOB2vNtTrzMRMEwdwV5eMOQ
 
@@ -59,3 +29,77 @@ https://github.com/lightbatis/DeepLiveCam
 
 https://juejin.cn/post/7437533313773092900
 
+
+# 尝试 huggingface 
+上面的 image segment 模型很多都能很好完成这个抠图工作，证明了思路是对的。
+
+只需提示词：搽除右下角的 画中画。
+
+但是目前对模型的使用， 需要继续调研。如何指定分割区域。带限定搽除特定对象。sam 的学习， track object 在视频。
+
+如何获得背景。
+- 识别区域
+
+
+
+- 搽除后的修复。
+
+例如： https://backgrounderase.net/home
+
+阅读论文
+
+
+接下来的工作就是 图像的分割， 合成，伪造
+
+这里有个修复例子
+
+https://medium.com/@bhatadithya54764118/day-93-advanced-video-object-removal-using-deep-learning-8cf028ca5764
+
+
+
+# 排查配音没有的问题
+
+1. 产生了 output/dub.mp3
+
+检查格式
+```
+ffprobe -v error -show_entries stream=codec_type,codec_name,channels,sample_rate -of default=noprint_wrappers=1 "/Users/always_day_1/work/VideoLingo/output/dub.mp3"
+
+codec_name=mp3
+codec_type=audio
+sample_rate=16000
+channels=1
+```
+
+检查音量
+```
+ffmpeg -i "/Users/always_day_1/work/VideoLingo/output/dub.mp3" -af "volumedetect" -f null -
+
+```
+
+增加音量
+```
+ffmpeg -i "/Users/always_day_1/work/VideoLingo/output/dub.mp3" -filter:a "volume=2.0" "/Users/always_day_1/work/VideoLingo/output/dub_louder.mp3"
+
+ffmpeg -i "/Users/always_day_1/work/VideoLingo/output/dub.mp3" -filter:a "volume=20dB" "/Users/always_day_1/work/VideoLingo/output/dub_louder.mp3"
+```
+
+还是不行，检查tts 生成过程：
+```
+ls -l output/audio/tts_tasks.xlsx
+```
+
+任务分片没有问题
+
+```
+ls -l output/audio/segs/
+ls -l output/audio/tmp/
+```
+
+这里面的wav 文件都是没有声音的，tts 应该没有成功执行
+
+
+```
+rm -rf ./out/audio/tmp/
+python ./core/step10_gen_audio.py
+```

@@ -6,15 +6,15 @@ display_language: "zh-CN"
 
 # API settings
 api:
-  key: 'sk-9536b48b7c6a4850b9c4777d55752059'
+  key: 'sk-8aeb63e6bfb94e9091b7bb8f8de093a7'
   base_url: 'https://dashscope.aliyuncs.com/compatible-mode/v1'
-  model: 'qwen-max-latest'
+  model: 'qwen-max-2025-01-25'
 
 # Language settings, written into the prompt, can be described in natural language
 target_language: '简体中文'
 
 # Whether to use Demucs for vocal separation before transcription
-demucs: true
+demucs: false
 
 whisper:
   # ["medium", "large-v3", "large-v3-turbo"]. Note: for zh model will force to use Belle/large-v3
@@ -62,7 +62,7 @@ pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
 # TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts, custom_tts]
-tts_method: 'f5tts'
+tts_method: 'edge_tts'
 
 # SiliconFlow FishTTS
 sf_fish_tts:
@@ -100,7 +100,7 @@ sf_cosyvoice2:
 
 # Edge TTS configuration
 edge_tts:
-  voice: 'zh-CN-XiaoxiaoNeural'
+  voice: 'zh-CN-YunxiNeural'
 
 # SoVITS configuration
 gpt_sovits:
@@ -176,3 +176,8 @@ language_split_with_space:
 language_split_without_space:
 - 'zh'
 - 'ja'
+
+bilibili:
+  cookie: ""
+  sessdata: ""
+  bili_jct: ""
