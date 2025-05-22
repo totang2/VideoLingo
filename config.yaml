@@ -6,9 +6,9 @@ display_language: "zh-CN"
 
 # API settings
 api:
-  key: 'sk-8aeb63e6bfb94e9091b7bb8f8de093a7'
+  key: 'sk-95f1c46df1de4841a799154aa55ae27a'
   base_url: 'https://dashscope.aliyuncs.com/compatible-mode/v1'
-  model: 'qwen-max-2025-01-25'
+  model: 'qwen-max-latest'
 
 # Language settings, written into the prompt, can be described in natural language
 target_language: '简体中文'
