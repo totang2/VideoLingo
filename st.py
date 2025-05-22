@@ -106,16 +106,10 @@ def process_audio():
     st.balloons()
 
 def main():
-    logo_col, _ = st.columns([1,1])
-    with logo_col:
-        st.image("docs/logo.png", use_column_width=True)
-    st.markdown(button_style, unsafe_allow_html=True)
-    welcome_text = t("Hello, welcome to VideoGoat. If you encounter any issues, feel free to get instant answers with our Free QA Agent <a href=\"https://share.fastgpt.in/chat/share?shareId=066w11n3r9aq6879r4z0v9rh\" target=\"_blank\">here</a>! You can also try out our SaaS website at <a href=\"https://3xyou.club\" target=\"_blank\">3xyou.io</a> for free!")
-    st.markdown(f"<p style='font-size: 20px; color: #808080;'>{welcome_text}</p>", unsafe_allow_html=True)
     # add settings
     with st.sidebar:
         page_setting()
-        st.markdown(give_star_button, unsafe_allow_html=True)
+
     download_video_section()
     text_processing_section()
     audio_processing_section()
