@@ -2,6 +2,7 @@ import streamlit as st
 import os, sys
 from st_components.imports_and_utils import *
 from core.config_utils import load_key
+from st_components.login_section import login_section
 
 # SET PATH
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -106,6 +107,10 @@ def process_audio():
     st.balloons()
 
 def main():
+    # 检查登录状态
+    if not login_section():
+        st.stop()
+        
     # add settings
     with st.sidebar:
         page_setting()
@@ -114,5 +119,6 @@ def main():
     text_processing_section()
     audio_processing_section()
     bilibili_upload_section()
+
 if __name__ == "__main__":
     main()
