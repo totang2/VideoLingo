@@ -52,7 +52,8 @@ def download_video_section():
             if st.button(t("Download Video"), key="download_button", use_container_width=True):
                 if url:
                     with st.spinner("Downloading video..."):
-                        download_video_ytdlp(url, resolution=res)
+                        # add cut
+                        download_video_ytdlp(url, resolution=res, cutoff_time=load_key("cutoff_time"))
                         
                         # check download success
                         if find_video_files():

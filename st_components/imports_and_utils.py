@@ -31,7 +31,7 @@ from core.delete_retry_dubbing import delete_dubbing_files
 from core.ask_gpt import ask_gpt
 import streamlit as st
 import io, zipfile
-from st_components.download_video_section import download_video_section
+from st_components.download_video_section import download_video_section, check_download_video_finished
 from st_components.sidebar_setting import page_setting
 from st_components.upload_video_section import bilibili_upload_section
 from translations.translations import translate as t

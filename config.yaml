@@ -16,6 +16,9 @@ target_language: '简体中文'
 # Whether to use Demucs for vocal separation before transcription
 demucs: false
 
+# for demo
+cutoff_time: 60
+
 whisper:
   # ["medium", "large-v3", "large-v3-turbo"]. Note: for zh model will force to use Belle/large-v3
   model: 'large-v3'
@@ -357,3 +360,4 @@ users:
   admin:
     password: "admin123"  # 请在生产环境中使用更安全的密码
     role: "admin"
+auto_execute: true

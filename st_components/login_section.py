@@ -1,6 +1,7 @@
 import streamlit as st
 from core.session_manager import SessionManager
 from translations.translations import translate as t
+from core.config_utils import load_key, update_key
 
 def login_section():
     """登录组件"""
@@ -27,15 +28,36 @@ def login_section():
         </style>
         """, unsafe_allow_html=True)
         
+        # 添加工具栏
         st.markdown(f"""
         <div class="user-info">
             <div class="welcome-text">👋 {t('Welcome')}, {session_manager.username}!</div>
         </div>
         """, unsafe_allow_html=True)
         
-        if st.button(t("Logout"), use_container_width=True, type="secondary"):
+        # 登出按钮
+        if st.button("登出", key="logout-button", type="secondary", use_container_width=False):
             session_manager.logout()
             st.rerun()
+        
+        # 添加设置选项
+        st.markdown("""
+        <div class="settings-box">
+            <p style='margin: 0; color: #2c3e50; font-size: 0.9rem; font-weight: 500;'>⚙️ 处理设置</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # 自动执行选项
+        auto_execute = st.checkbox(
+            "全自动处理",
+            value=load_key('auto_execute') or False,
+            help="视频下载后将自动执行所有处理步骤，无需手动点击"
+        )
+        
+        # 保存设置
+        if auto_execute != load_key('auto_execute'):
+            update_key('auto_execute', auto_execute)
+        
         return True
     
     # 登录表单样式

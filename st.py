@@ -1,5 +1,6 @@
 import streamlit as st
-import os, sys
+import os, sys, shutil
+import re
 from st_components.imports_and_utils import *
 from core.config_utils import load_key
 from st_components.login_section import login_section
@@ -11,8 +12,59 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 st.set_page_config(page_title="VideoLingo", page_icon="docs/logo.svg")
 
-SUB_VIDEO = "output/output_sub.mp4"
-DUB_VIDEO = "output/output_dub.mp4"
+# 定义常量
+OUTPUT_DIR = "output"
+INPUT_VIDEO = os.path.join(OUTPUT_DIR, "input.mp4")
+SUB_VIDEO = os.path.join(OUTPUT_DIR, "output_sub.mp4")
+DUB_VIDEO = os.path.join(OUTPUT_DIR, "output_dub.mp4")
+
+# 初始化会话状态
+if 'processing_state' not in st.session_state:
+    st.session_state.processing_state = {
+        'video_ready': False,
+        'subtitle_ready': False,
+        'audio_ready': False
+    }
+
+def set_subtitle_ready():
+    # create a file in the output directory
+    with open(os.path.join(OUTPUT_DIR, "subtitle_ready"), "w") as f:
+        f.write("finished")
+        
+def check_subtitle_ready():
+    # check if the file exists
+    if os.path.exists(os.path.join(OUTPUT_DIR, "subtitle_ready")):
+        return True
+    return False
+
+def set_audio_ready(is_ready=True):
+    if is_ready:
+        # create a file in the output directory
+        with open(os.path.join(OUTPUT_DIR, "audio_ready"), "w") as f:
+            f.write("finished")
+    else:
+        # delete the file
+        if os.path.exists(os.path.join(OUTPUT_DIR, "audio_ready")):
+            os.remove(os.path.join(OUTPUT_DIR, "audio_ready"))
+        
+def check_audio_ready():
+    # check if the file exists
+    if os.path.exists(os.path.join(OUTPUT_DIR, "audio_ready")):
+        return True
+    return False
+
+def auto_execute(step):
+    if load_key("auto_execute"):
+        if step == "text":
+            if check_download_video_finished():
+                return True
+        elif step == "audio":
+            if check_subtitle_ready():
+                return True
+        elif step == "bilibili":
+            pass
+        
+    return False
 
 def text_processing_section():
     st.header(t("b. Translate and Generate Subtitles"))
@@ -30,8 +82,9 @@ def text_processing_section():
         """, unsafe_allow_html=True)
 
         if not os.path.exists(SUB_VIDEO):
-            if st.button(t("Start Processing Subtitles"), key="text_processing_button"):
+            if auto_execute("text") or st.button(t("Start Processing Subtitles"), key="text_processing_button"):
                 process_text()
+                set_subtitle_ready()
                 st.rerun()
         else:
             if load_key("burn_subtitles"):
@@ -76,15 +129,17 @@ def audio_processing_section():
             4. {t("Merge final audio into video")}
         """, unsafe_allow_html=True)
         if not os.path.exists(DUB_VIDEO):
-            if st.button(t("Start Audio Processing"), key="audio_processing_button"):
+            if auto_execute("audio") or st.button(t("Start Audio Processing"), key="audio_processing_button"):
                 process_audio()
+                set_audio_ready()
                 st.rerun()
         else:
-            st.success(t("Audio processing is complete! You can check the audio files in the `output` folder."))
+            st.success(t("Audio processing is complete! You can click Download in the lower right corner of the video."))
             if load_key("burn_subtitles"):
                 st.video(DUB_VIDEO) 
             if st.button(t("Delete dubbing files"), key="delete_dubbing_files"):
                 delete_dubbing_files()
+                set_audio_ready(False)
                 st.rerun()
             if st.button(t("Archive to 'history'"), key="cleanup_in_audio_processing"):
                 cleanup()
@@ -118,7 +173,7 @@ def main():
     download_video_section()
     text_processing_section()
     audio_processing_section()
-    bilibili_upload_section()
+    # bilibili_upload_section()
 
 if __name__ == "__main__":
     main()
