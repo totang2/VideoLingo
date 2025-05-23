@@ -141,15 +141,4 @@ def login_section():
                 else:
                     st.error(t("Invalid username or password"))
     
-    # 默认账户信息
-    st.markdown("""
-    <div class="info-box">
-        <p style='margin: 0; color: #6c757d; font-size: 0.9rem;'>默认账户信息：</p>
-        <p style='margin: 0.5rem 0 0 0; font-size: 0.9rem;'>
-            <span style='color: #2c3e50;'>👤 用户名：</span>admin<br>
-            <span style='color: #2c3e50;'>�� 密码：</span>admin123
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
     return False 

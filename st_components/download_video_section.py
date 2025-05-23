@@ -10,6 +10,17 @@ from translations.translations import translate as t
 
 OUTPUT_DIR = "output"
 
+def set_download_video_finished():
+    # create a file in the output directory
+    with open(os.path.join(OUTPUT_DIR, "download_video_finished"), "w") as f:
+        f.write("finished")
+        
+def check_download_video_finished():
+    # check if the file exists
+    if os.path.exists(os.path.join(OUTPUT_DIR, "download_video_finished")):
+        return True
+    return False
+
 def download_video_section():
     st.header(t("a. Download or Upload Video"))
     with st.container(border=True):
@@ -42,6 +53,11 @@ def download_video_section():
                 if url:
                     with st.spinner("Downloading video..."):
                         download_video_ytdlp(url, resolution=res)
+                        
+                        # check download success
+                        if find_video_files():
+                            # set the download video finished
+                            set_download_video_finished()
                     st.rerun()
 
             uploaded_file = st.file_uploader(t("Or upload video"), type=load_key("allowed_video_formats") + load_key("allowed_audio_formats"))
@@ -59,6 +75,9 @@ def download_video_section():
 
                 if ext.lower() in load_key("allowed_audio_formats"):
                     convert_audio_to_video(os.path.join(OUTPUT_DIR, clean_name))
+                    
+                    # set the download video finished
+                    set_download_video_finished()
                 st.rerun()
             else:
                 return False
