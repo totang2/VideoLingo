@@ -7,6 +7,7 @@ from rich.console import Console
 from rich.table import Table
 from rich import box
 from core.config_utils import load_key
+from core.language_utils import normalize_language
 
 console = Console()
 
@@ -23,6 +24,14 @@ def valid_translate_result(result: dict, required_keys: list, required_sub_keys:
     return {"status": "success", "message": "Translation completed"}
 
 def translate_lines(lines, previous_content_prompt, after_cotent_prompt, things_to_note_prompt, summary_prompt, index = 0):
+    # 检查源语言和目标语言是否相同
+    src_language = normalize_language(load_key("whisper.detected_language"))
+    target_language = normalize_language(load_key("target_language"))
+    
+    if src_language == target_language:
+        console.print("[yellow]Source and target languages are the same, skipping translation...[/yellow]")
+        return lines, lines
+
     shared_prompt = generate_shared_prompt(previous_content_prompt, after_cotent_prompt, summary_prompt, things_to_note_prompt)
 
     # Retry translation if the length of the original text and the translated text are not the same, or if the specified key is missing

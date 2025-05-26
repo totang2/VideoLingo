@@ -1,8 +1,10 @@
 import streamlit as st
 import os, sys, shutil
 import re
+import pandas as pd
 from st_components.imports_and_utils import *
 from core.config_utils import load_key
+from core.language_utils import normalize_language
 from st_components.login_section import login_section
 
 # SET PATH
@@ -101,12 +103,27 @@ def process_text():
         step2_whisperX.transcribe()
     with st.spinner(t("Splitting long sentences...")):  
         step3_1_spacy_split.split_by_spacy()
+        # todo detected language is same, no need to split by meaning
         step3_2_splitbymeaning.split_sentences_by_meaning()
-    with st.spinner(t("Summarizing and translating...")):
+    
+    # 检查源语言和目标语言是否相同
+    src_language = normalize_language(load_key("whisper.detected_language"))
+    target_language = normalize_language(load_key("target_language"))
+    
+    print(f"src_language: {src_language}, target_language: {target_language}")
+    
+    if src_language != target_language:
+        with st.spinner(t("Summarizing and translating...")):
+            step4_1_summarize.get_summary()
+            if load_key("pause_before_translate"):
+                input(t("⚠️ PAUSE_BEFORE_TRANSLATE. Go to `output/log/terminology.json` to edit terminology. Then press ENTER to continue..."))
+            step4_2_translate_all.translate_all()
+    else:
+        st.info(t("Source and target languages are the same, fake translation..."))
         step4_1_summarize.get_summary()
-        if load_key("pause_before_translate"):
-            input(t("⚠️ PAUSE_BEFORE_TRANSLATE. Go to `output/log/terminology.json` to edit terminology. Then press ENTER to continue..."))
-        step4_2_translate_all.translate_all()
+        from core.step4_2_translate_all_dummy import translate_all as translate_all_dummy
+        translate_all_dummy()
+    
     with st.spinner(t("Processing and aligning subtitles...")): 
         step5_splitforsub.split_for_sub_main()
         step6_generate_final_timeline.align_timestamp_main()
