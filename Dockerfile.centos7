@@ -1,0 +1,39 @@
+FROM centos:7
+
+# Install EPEL repository and basic tools
+RUN yum -y install epel-release && \
+    yum -y update && \
+    yum -y install git curl wget ffmpeg ffmpeg-devel \
+    gcc gcc-c++ make cmake \
+    python3 python3-devel python3-pip \
+    fontconfig-devel freetype-devel \
+    && yum clean all
+
+# Install Python 3.10
+RUN yum -y install https://repo.ius.io/ius-release-el7.rpm && \
+    yum -y install python36u python36u-pip python36u-devel && \
+    ln -sf /usr/bin/python3.6 /usr/bin/python3 && \
+    ln -sf /usr/bin/pip3.6 /usr/bin/pip3
+
+# Set working directory
+WORKDIR /app
+
+# Clone repository
+RUN git clone https://github.com/totang2/VideoLingo.git .
+
+# Configure pip to use Tsinghua mirror
+RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+
+# Install PyTorch CPU version
+RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Clean up unnecessary files
+RUN rm -rf .git
+
+EXPOSE 8501
+
+CMD ["streamlit", "run", "st.py"] 
