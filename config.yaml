@@ -17,14 +17,14 @@ target_language: '简体中文'
 demucs: false
 
 # for demo
-cutoff_time: 60
+# cutoff_time: 60
 
 whisper:
   # ["medium", "large-v3", "large-v3-turbo"]. Note: for zh model will force to use Belle/large-v3
   model: 'large-v3'
   # Whisper specified recognition language [en, zh, ...]
-  language: 'zh'
-  detected_language: 'zh'
+  language: 'en'
+  detected_language: 'en'
   # Whisper running mode ["local", "cloud", "elevenlabs"]. Specifies where to run, cloud uses 302.ai API
   runtime: 'local'
   # 302.ai API key
@@ -123,10 +123,6 @@ speed_factor:
 min_subtitle_duration: 2.5 # Minimum subtitle duration, will be forcibly extended
 min_trim_duration: 3.5 # Subtitles shorter than this value won't be split
 tolerance: 1.5 # Allowed extension time to the next subtitle
-
-
-
-
 
 ## ======================== Additional settings 请勿修改======================== ##
 # Whisper model directory
@@ -360,4 +356,12 @@ users:
   admin:
     password: "admin123"  # 请在生产环境中使用更安全的密码
     role: "admin"
-auto_execute: false
+auto_execute: true
+
+# Distributed Download Settings
+distributed_download:
+  enabled: false  # 是否启用分布式下载
+  coordinator_url: "http://3xyou.club:8502"  # 协调器服务地址
+  max_retries: 30  # 最大重试次数
+  retry_interval: 1  # 重试间隔（秒）
+  node_id: ""  # 节点ID，留空则自动生成

@@ -3,6 +3,7 @@ import os, sys, shutil
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.config_utils import load_key, update_key
 from core.step1_ytdlp import download_video_ytdlp, find_video_files
+from core.distributed_download import create_downloader
 from time import sleep
 import re
 import subprocess
@@ -52,14 +53,46 @@ def download_video_section():
             if st.button(t("Download Video"), key="download_button", use_container_width=True):
                 if url:
                     with st.spinner("Downloading video..."):
-                        # add cut
-                        download_video_ytdlp(url, resolution=res, cutoff_time=load_key("cutoff_time"))
-                        
-                        # check download success
-                        if find_video_files():
-                            # set the download video finished
-                            set_download_video_finished()
-                    st.rerun()
+                        # 检查是否启用分布式下载
+                        distributed_config = load_key("distributed_download", {})
+                        if distributed_config.get("enabled", False):
+                            # 使用分布式下载
+                            downloader = create_downloader(distributed_config.get("node_id"))
+                            
+                            # 注册节点
+                            if not downloader.register_node():
+                                st.error("Failed to register with coordinator")
+                                return False
+                            
+                            # 尝试下载
+                            success = downloader.download_video(url, resolution=res, cutoff_time=load_key("cutoff_time"))
+                            
+                            if success:
+                                set_download_video_finished()
+                                st.rerun()
+                            else:
+                                st.warning("Download failed, task has been reassigned to another node. Please wait...")
+                                # 等待任务完成
+                                max_retries = distributed_config.get("max_retries", 30)
+                                retry_interval = distributed_config.get("retry_interval", 1)
+                                retry_count = 0
+                                while retry_count < max_retries:
+                                    if check_download_video_finished():
+                                        st.rerun()
+                                        break
+                                    sleep(retry_interval)
+                                    retry_count += 1
+                                if retry_count >= max_retries:
+                                    st.error("Download failed after multiple attempts")
+                        else:
+                            # 使用普通下载
+                            try:
+                                download_video_ytdlp(url, resolution=res, cutoff_time=load_key("cutoff_time"))
+                                if find_video_files():
+                                    set_download_video_finished()
+                                    st.rerun()
+                            except Exception as e:
+                                st.error(f"Download failed: {str(e)}")
 
             uploaded_file = st.file_uploader(t("Or upload video"), type=load_key("allowed_video_formats") + load_key("allowed_audio_formats"))
             if uploaded_file:

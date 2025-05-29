@@ -14,6 +14,62 @@ def config_input(label, key, help=None):
     return val
 
 def page_setting():
+    st.header(t("Settings"))
+    
+    # 分布式下载设置
+    st.subheader(t("Distributed Download Settings"))
+    distributed_config = load_key("distributed_download", {})
+    
+    # 是否启用分布式下载
+    enabled = st.checkbox(
+        t("Enable Distributed Download"),
+        value=distributed_config.get("enabled", False),
+        help=t("Enable distributed download to improve download reliability")
+    )
+    
+    if enabled:
+        # 协调器地址
+        coordinator_url = st.text_input(
+            t("Coordinator URL"),
+            value=distributed_config.get("coordinator_url", "http://3xyou.club:8502"),
+            help=t("URL of the coordinator service")
+        )
+        
+        # 节点ID
+        node_id = st.text_input(
+            t("Node ID"),
+            value=distributed_config.get("node_id", ""),
+            help=t("Unique identifier for this node (leave empty for auto-generation)")
+        )
+        
+        # 最大重试次数
+        max_retries = st.number_input(
+            t("Max Retries"),
+            min_value=1,
+            max_value=100,
+            value=distributed_config.get("max_retries", 30),
+            help=t("Maximum number of retries for failed downloads")
+        )
+        
+        # 重试间隔
+        retry_interval = st.number_input(
+            t("Retry Interval (seconds)"),
+            min_value=1,
+            max_value=60,
+            value=distributed_config.get("retry_interval", 1),
+            help=t("Interval between retries in seconds")
+        )
+        
+        # 更新配置
+        if st.button(t("Save Distributed Download Settings")):
+            update_key("distributed_download", {
+                "enabled": enabled,
+                "coordinator_url": coordinator_url,
+                "node_id": node_id,
+                "max_retries": max_retries,
+                "retry_interval": retry_interval
+            })
+            st.success(t("Settings saved successfully"))
 
     display_language = st.selectbox("Display Language 🌐", 
                                   options=list(DISPLAY_LANGUAGES.keys()),
