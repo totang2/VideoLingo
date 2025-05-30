@@ -179,18 +179,21 @@ def process_audio():
     st.balloons()
 
 def main():
-    # 检查登录状态
     if not login_section():
         st.stop()
-        
-    # add settings
     with st.sidebar:
         page_setting()
 
-    download_video_section()
-    text_processing_section()
-    audio_processing_section()
-    # bilibili_upload_section()
+    # 如果是reassigned download完成，自动进入后续步骤
+    if st.session_state.get('download_completed'):
+        st.success(f"Video downloaded successfully: {st.session_state['video_path']}")
+        st.session_state['download_completed'] = False
+        text_processing_section()
+        audio_processing_section()
+    else:
+        download_video_section()
+        text_processing_section()
+        audio_processing_section()
 
 if __name__ == "__main__":
     main()

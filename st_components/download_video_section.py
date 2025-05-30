@@ -36,7 +36,7 @@ def download_video_section():
                 st.rerun()
             return True
         except:
-            col1, col2 = st.columns([3, 1])
+            col1, col2, col3 = st.columns([2, 1, 1])
             with col1:
                 url = st.text_input(t("Enter YouTube link:"))
             with col2:
@@ -50,6 +50,26 @@ def download_video_section():
                 default_idx = list(res_dict.values()).index(target_res) if target_res in res_dict.values() else 0
                 res_display = st.selectbox(t("Resolution"), options=res_options, index=default_idx)
                 res = res_dict[res_display]
+            with col3:
+                # 添加浏览器选择
+                browser_options = {
+                    "None": None,
+                    "Chrome": "chrome",
+                    "Firefox": "firefox",
+                    "Safari": "safari",
+                    "Edge": "edge",
+                    "Opera": "opera",
+                    "Brave": "brave",
+                    "Vivaldi": "vivaldi"
+                }
+                browser = st.selectbox(
+                    t("Browser for Cookies"),
+                    options=list(browser_options.keys()),
+                    index=0,  # 默认选择 "None"
+                    help=t("Select browser to get cookies from")
+                )
+                browser = browser_options[browser]
+                
             if st.button(t("Download Video"), key="download_button", use_container_width=True):
                 if url:
                     with st.spinner("Downloading video..."):
@@ -65,7 +85,7 @@ def download_video_section():
                                 return False
                             
                             # 尝试下载
-                            success = downloader.download_video(url, resolution=res, cutoff_time=load_key("cutoff_time"))
+                            success = downloader.download_video(url, resolution=res, cutoff_time=load_key("cutoff_time"), browser=browser)
                             
                             if success:
                                 set_download_video_finished()
@@ -87,7 +107,7 @@ def download_video_section():
                         else:
                             # 使用普通下载
                             try:
-                                download_video_ytdlp(url, resolution=res, cutoff_time=load_key("cutoff_time"))
+                                download_video_ytdlp(url, resolution=res, cutoff_time=load_key("cutoff_time"), browser=browser)
                                 if find_video_files():
                                     set_download_video_finished()
                                     st.rerun()

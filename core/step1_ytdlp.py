@@ -4,6 +4,7 @@ import glob
 import re
 import subprocess
 from core.config_utils import load_key
+from typing import Optional
 
 def sanitize_filename(filename):
     # Remove or replace illegal characters
@@ -13,7 +14,67 @@ def sanitize_filename(filename):
     # Use default name if filename is empty
     return filename if filename else 'video'
 
-def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time=None):
+def get_browser_cookies(browser: str = None) -> Optional[str]:
+    """从浏览器获取 cookies
+    
+    Args:
+        browser: 浏览器名称 (chrome, firefox, safari, edge, opera, brave, vivaldi)
+        
+    Returns:
+        cookie 文件路径或 None
+    """
+    if not browser:
+        return None
+        
+    try:
+        # 使用指定的 yt-dlp 路径和 cookies 文件路径
+        yt_dlp_path = '/Users/always_day_1/tool/yt-dlp_macos'
+        cookie_file = '/Users/always_day_1/tool/cookies.txt'
+        
+        if not os.path.exists(yt_dlp_path):
+            print(f"❌ yt-dlp not found at {yt_dlp_path}")
+            return None
+            
+        # 确保 cookies 目录存在
+        os.makedirs(os.path.dirname(cookie_file), exist_ok=True)
+        
+        # 使用与终端完全相同的命令
+        cmd = [
+            yt_dlp_path,
+            '--cookies-from-browser', browser,
+            '--cookies', cookie_file,
+            '--no-check-certificate',
+            '--quiet',
+            '--no-warnings',
+            '--skip-download',
+            '--print-traffic',
+            'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+        ]
+        
+        # 执行命令
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            encoding='utf-8'
+        )
+        
+        # 等待命令执行完成
+        stdout, stderr = process.communicate()
+        
+        if process.returncode == 0 and os.path.exists(cookie_file):
+            print(f"✅ Successfully got cookies from {browser}")
+            return cookie_file
+        else:
+            print(f"❌ Failed to get cookies from {browser}: {stderr}")
+            return None
+            
+    except Exception as e:
+        print(f"❌ Error getting cookies from {browser}: {str(e)}")
+        return None
+
+def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time=None, browser: str = None):
     allowed_resolutions = ['360', '1080', 'best']
     if resolution not in allowed_resolutions:
         resolution = '360'
@@ -30,10 +91,15 @@ def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time
         }],
     }
 
-     # Read Youtube Cookie File
-    cookies_path = load_key("youtube.cookies_path")
-    if os.path.exists(cookies_path):
-        ydl_opts["cookiefile"] = str(cookies_path)
+    # 尝试从浏览器获取 cookies
+    cookie_file = get_browser_cookies(browser)
+    if cookie_file:
+        ydl_opts["cookiefile"] = cookie_file
+    else:
+        # 如果从浏览器获取失败，尝试使用配置文件中的 cookies
+        cookies_path = load_key("youtube.cookies_path")
+        if os.path.exists(cookies_path):
+            ydl_opts["cookiefile"] = str(cookies_path)
 
     # Update yt-dlp to avoid download failure due to API changes
     try:
@@ -99,5 +165,6 @@ if __name__ == '__main__':
     url = input('Please enter the URL of the video you want to download: ')
     resolution = input('Please enter the desired resolution (360/1080, default 1080): ')
     resolution = int(resolution) if resolution.isdigit() else 1080
-    download_video_ytdlp(url, resolution=resolution)
+    browser = input('Please enter the browser name (chrome, firefox, safari, edge, opera, brave, vivaldi, or leave blank): ')
+    download_video_ytdlp(url, resolution=resolution, browser=browser)
     print(f"🎥 Video has been downloaded to {find_video_files()}")

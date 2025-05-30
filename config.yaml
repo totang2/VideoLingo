@@ -16,8 +16,6 @@ target_language: '简体中文'
 # Whether to use Demucs for vocal separation before transcription
 demucs: false
 
-# for demo
-# cutoff_time: 60
 
 whisper:
   # ["medium", "large-v3", "large-v3-turbo"]. Note: for zh model will force to use Belle/large-v3
@@ -38,10 +36,12 @@ burn_subtitles: true
 ## ======================== Advanced Settings ======================== ##
 # *Youtube settings
 youtube:
-  cookies_path: '/Users/always_day_1/tool/cookies.txt'
-
-# *Default resolution for downloading YouTube videos [360, 1080, best]
-ytb_resolution: '1080'
+  cookies_path: 'tools/cookies.txt'
+  yt_dlp_path: 'tools/yt-dlp_{platform}'  # 将在运行时替换为 yt-dlp_win64.exe (Windows) 或 yt-dlp_macos (Mac)
+  allowed_video_formats: ['mp4', 'webm', 'mkv', 'avi', 'mov', 'flv', 'wmv', 'm4v', '3gp', 'ts', 'mts', 'm2ts', 'vob', 'ogv', 'ogg', 'drc', 'gif', 'gifv', 'mng', 'qt', 'yuv', 'rm', 'rmvb', 'asf', 'amv', 'm2v', 'svi', '3g2', 'mxf', 'roq', 'nsv', 'f4v', 'f4p', 'f4a', 'f4b', 'f4m', 'f4s', 'f4t', 'f4u', 'f4w', 'f4x', 'f4y', 'f4z', 'f4v', 'f4p', 'f4a', 'f4b', 'f4m', 'f4s', 'f4t', 'f4u', 'f4w', 'f4x', 'f4y', 'f4z']
+  allowed_audio_formats: ['mp3', 'wav', 'ogg', 'm4a', 'flac', 'aac', 'wma', 'aiff', 'alac', 'ape', 'opus', 'webm', 'mka', 'm3u', 'm3u8', 'pls', 'xspf', 'asx', 'wax', 'wvx', 'wmx', 'wv', 'wma', 'wav', 'aiff', 'aif', 'aifc', 'au', 'snd', 'raw', 'paf', 'svx', 'nist', 'voc', 'ircam', 'w64', 'mat4', 'mat5', 'pvf', 'htk', 'sds', 'avr', 'wavex', 'sd2', 'flac', 'caf', 'wve', 'ogg', 'mpc', 'mp4', 'm4a', 'm4b', 'm4p', 'm4r', 'm4v', 'm4s', '3gp', '3g2', '3gpp', '3gpp2', 'amr', 'awb', 'mka', 'mkv', 'webm', 'ts', 'mts', 'm2ts', 'vob', 'ogv', 'ogg', 'drc', 'gif', 'gifv', 'mng', 'qt', 'yuv', 'rm', 'rmvb', 'asf', 'amv', 'm2v', 'svi', '3g2', 'mxf', 'roq', 'nsv', 'f4v', 'f4p', 'f4a', 'f4b', 'f4m', 'f4s', 'f4t', 'f4u', 'f4w', 'f4x', 'f4y', 'f4z', 'f4v', 'f4p', 'f4a', 'f4b', 'f4m', 'f4s', 'f4t', 'f4u', 'f4w', 'f4x', 'f4y', 'f4z']
+  ytb_resolution: '1080'
+  cutoff_time: 30
 
 subtitle:
   # *Maximum length of each subtitle line in characters
@@ -365,3 +365,6 @@ distributed_download:
   max_retries: 30  # 最大重试次数
   retry_interval: 1  # 重试间隔（秒）
   node_id: ""  # 节点ID，留空则自动生成
+  auto_process_after_reassign: true
+  process_text: true
+  process_audio: true
