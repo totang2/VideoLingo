@@ -30,5 +30,7 @@ whisperx @ git+https://github.com/m-bain/whisperx.git@7307306a9d8dd0d261e588cc93
 syllables
 pypinyin
 g2p-en
+flask_socketio
+werkzeug==2.3.7
 
 
