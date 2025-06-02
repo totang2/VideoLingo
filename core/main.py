@@ -38,17 +38,13 @@ def main():
 
     # 导入必要的模块
     from core.coordinator import Coordinator
-    from core.config_utils import ConfigManager
-
-    # 初始化配置
-    config_manager = ConfigManager()
-    config = config_manager.load_config()
+    from core.config_utils import load_key
 
     # 创建协调器
     coordinator = Coordinator()
     
     # 根据配置决定是否启动协调器服务
-    if config.get('distributed_download', {}).get('enabled', False):
+    if load_key('distributed_download.enabled', False):
         logger.info("Distributed download is enabled, starting coordinator service")
         # 在后台线程中启动协调器服务
         coordinator_thread = threading.Thread(
