@@ -3,7 +3,26 @@ import os
 import sys
 import platform
 import subprocess
+import threading
+import logging
 from pathlib import Path
+
+# 配置日志
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger('main')
+
+def start_coordinator():
+    """启动协调器服务"""
+    try:
+        from core.coordinator import app, socketio
+        logger.info("Starting coordinator service on 0.0.0.0:8502")
+        socketio.run(app, host='0.0.0.0', port=8502, debug=False)
+    except Exception as e:
+        logger.error(f"Failed to start coordinator service: {e}")
+        raise
 
 def main():
     # 获取应用程序根目录
@@ -26,12 +45,24 @@ def main():
     config = config_manager.load_config()
 
     # 创建协调器
-    coordinator = Coordinator(config)
+    coordinator = Coordinator()
+    
+    # 根据配置决定是否启动协调器服务
+    if config.get('distributed_download', {}).get('enabled', False):
+        logger.info("Distributed download is enabled, starting coordinator service")
+        # 在后台线程中启动协调器服务
+        coordinator_thread = threading.Thread(
+            target=start_coordinator,
+            daemon=True
+        )
+        coordinator_thread.start()
+    else:
+        logger.info("Distributed download is disabled, coordinator service will not start")
     
     # 使用 streamlit run 命令启动应用
     st_script = os.path.join(app_dir, "st.py")
     if not os.path.exists(st_script):
-        print(f"错误：找不到 {st_script}")
+        logger.error(f"错误：找不到 {st_script}")
         sys.exit(1)
     
     # 构建 streamlit 命令
@@ -39,11 +70,15 @@ def main():
         sys.executable, "-m", "streamlit", "run",
         st_script,
         "--server.port=8501",
-        "--server.address=127.0.0.1"
+        "--server.address=0.0.0.0"
     ]
     
     # 运行命令
-    subprocess.run(cmd)
+    try:
+        subprocess.run(cmd)
+    except Exception as e:
+        logger.error(f"Failed to start Streamlit: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main() 

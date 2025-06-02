@@ -108,7 +108,8 @@ python install.py
 3. Start the application
 
 ```bash
-streamlit run st.py
+#streamlit run st.py
+python core/main.py
 ```
 
 ### Docker
@@ -160,3 +161,72 @@ This project is licensed under the Apache 2.0 License. Special thanks to the fol
 ---
 
 <p align="center">If you find VideoLingo helpful, please give me a ⭐️!</p>
+
+# VideoLingo
+
+VideoLingo 是一个强大的视频翻译工具，支持分布式下载、自动翻译和配音功能。
+
+## 系统要求
+
+- Windows 10 或更高版本
+- Python 3.10 或更高版本
+- NVIDIA GPU（推荐，用于加速处理）
+
+## 安装步骤
+
+1. 下载并解压 VideoLingo-Windows.zip
+2. 双击运行 `install.bat`
+   - 脚本会自动创建虚拟环境
+   - 安装所有必要的依赖
+   - 如果出现错误，请查看错误信息
+
+## 配置说明
+
+1. 编辑 `config.yaml` 文件：
+   - 设置 API 密钥
+   - 配置分布式下载选项
+   - 调整其他参数
+
+2. 分布式下载配置：
+   ```yaml
+   distributed_download:
+     enabled: true  # 设置为 true 启用分布式下载
+     # 其他配置项...
+   ```
+
+## 启动程序
+
+1. 双击运行 `start.bat`
+   - 如果启用了分布式下载，会启动 Coordinator 服务（端口 8502）
+   - 启动 Streamlit 服务（端口 8501）
+   - 自动打开浏览器访问 http://localhost:8501
+
+2. 如果遇到问题：
+   - 检查错误信息
+   - 确保配置文件正确
+   - 查看日志文件
+
+## 使用说明
+
+1. 在浏览器中访问 http://localhost:8501
+2. 按照界面提示操作：
+   - 输入视频 URL
+   - 选择目标语言
+   - 等待处理完成
+   - 下载结果
+
+## 常见问题
+
+1. 如果启动失败：
+   - 检查 Python 是否正确安装
+   - 确保虚拟环境创建成功
+   - 查看错误日志
+
+2. 如果依赖安装失败：
+   - 检查网络连接
+   - 尝试手动安装依赖
+   - 查看 pip 错误信息
+
+## 技术支持
+
+如有问题，请提交 Issue 或联系技术支持。

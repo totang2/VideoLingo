@@ -360,7 +360,7 @@ auto_execute: true
 
 # Distributed Download Settings
 distributed_download:
-  enabled: false  # 是否启用分布式下载
+  enabled: true  # 是否启用分布式下载
   coordinator_url: "http://3xyou.club:8502"  # 协调器服务地址
   max_retries: 30  # 最大重试次数
   retry_interval: 1  # 重试间隔（秒）
