@@ -72,4 +72,4 @@ ENV COORDINATOR_HOST=0.0.0.0
 EXPOSE 8501 8502
 
 # 使用 main.py 作为入口点
-CMD ["python", "core/main.py"] 
+CMD ["/usr/bin/python3", "core/main.py"] 
